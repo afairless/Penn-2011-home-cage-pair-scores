@@ -1,0 +1,96 @@
+Sub SocPairScoring()
+' Andrew Fairless, July 2011
+
+' This program/macro classifies each social interaction of a pair of mice in their home cage according to their
+' individual, simultaneous social behaviors considered together.  For example, if each mouse was sniffing the
+' body of the other mouse, the pair together would be considered engaged in "body sniff - body sniff."  The
+' classification of the behaviors at each time point is displayed in the output table "SocPairScoresArray".
+
+' THIS PROGRAM WILL NEED SOME RE-WORK AFTER I WRITE AND IMPLEMENT THE ERROR-CHECKING PROGRAM
+
+Const RowCount As Integer = 61
+Const ColCount As Integer = 29
+Dim SocPairScoresArray(0 To RowCount, 1 To ColCount)
+Dim SocPairScoresRange As Variant
+Dim RowIndex As Integer
+Dim Index1 As Integer
+Dim Index2 As Integer
+Dim Counter As Integer
+
+'    ActiveWorkbook.Sheets("Sheet1").Name = "original data"
+'    ActiveWorkbook.Sheets("Sheet2").Name = "soc pair scores"
+
+    SocPairScoresArray(0, 1) = "dob"
+    SocPairScoresArray(0, 2) = "home cage test date"
+    SocPairScoresArray(0, 3) = "litter ordination"
+    SocPairScoresArray(0, 4) = "filename"
+    SocPairScoresArray(0, 5) = "strain"
+    SocPairScoresArray(0, 6) = "sex"
+    SocPairScoresArray(0, 7) = "age"
+    SocPairScoresArray(0, 8) = "rater"
+    SocPairScoresArray(0, 9) = "mouse #"
+    SocPairScoresArray(0, 10) = "mouse #"
+    SocPairScoresArray(0, 11) = "relative time"
+    SocPairScoresArray(0, 12) = "absolute time"
+    SocPairScoresArray(0, 13) = "nose sniff - nose sniff"
+    SocPairScoresArray(0, 14) = "body sniff - body sniff"
+    SocPairScoresArray(0, 15) = "body sniff - anogenital sniff"
+    SocPairScoresArray(0, 16) = "body sniff - pawing"
+    SocPairScoresArray(0, 17) = "body sniff - passive, walking"
+    SocPairScoresArray(0, 18) = "body sniff - passive, not walking"
+    SocPairScoresArray(0, 19) = "anogenital sniff - anogenital sniff"
+    SocPairScoresArray(0, 20) = "anogenital sniff - pawing"
+    SocPairScoresArray(0, 21) = "anogenital sniff - passive, walking"
+    SocPairScoresArray(0, 22) = "anogenital sniff - not walking"
+    SocPairScoresArray(0, 23) = "pawing - pawing"
+    SocPairScoresArray(0, 24) = "pawing - passive, walking"
+    SocPairScoresArray(0, 25) = "pawing - passive, not walking"
+    SocPairScoresArray(0, 26) = "passive, walking - passive, walking"
+    SocPairScoresArray(0, 27) = "passive, walking - passive, not walking"
+    SocPairScoresArray(0, 28) = "passive, not walking - passive, not walking"
+    SocPairScoresArray(0, 29) = "error"
+    
+    ActiveWorkbook.Sheets("original data").Select
+    Range("C30").Select
+    For RowIndex = 1 To RowCount
+        SocPairScoresArray(RowIndex, 1) = Sheets("original data").Range("B10").Value
+        SocPairScoresArray(RowIndex, 2) = Sheets("original data").Range("B9").Value
+        SocPairScoresArray(RowIndex, 3) = Sheets("original data").Range("B7").Value
+        SocPairScoresArray(RowIndex, 4) = Sheets("original data").Range("B6").Value
+        SocPairScoresArray(RowIndex, 5) = Sheets("original data").Range("B8").Value
+        SocPairScoresArray(RowIndex, 7) = Sheets("original data").Range("B11").Value
+        SocPairScoresArray(RowIndex, 8) = Sheets("original data").Range("B19").Value
+        SocPairScoresArray(RowIndex, 9) = Sheets("original data").Range("B12").Value
+        SocPairScoresArray(RowIndex, 10) = Sheets("original data").Range("B14").Value
+        SocPairScoresArray(RowIndex, 11) = ActiveCell.Value
+        SocPairScoresArray(RowIndex, 12) = ActiveCell.Offset(0, 2).Value
+
+' Checks for "nose sniff - nose sniff" social interaction and marks it in output table "SocPairScoresArray"
+        If (ActiveCell.Offset(0, 3).Value = 1) And (ActiveCell.Offset(1, 3).Value = 1) Then
+            SocPairScoresArray(RowIndex, 13) = 1
+        End If
+
+' Checks for all other social interaction and marks them in output table "SocPairScoresArray"
+        Counter = 13
+        For Index1 = 4 To 8
+            For Index2 = Index1 To 8
+                Counter = Counter + 1
+                If ((ActiveCell.Offset(0, Index1).Value = 1) And (ActiveCell.Offset(1, Index2).Value = 1)) Or ((ActiveCell.Offset(1, Index1).Value = 1) And (ActiveCell.Offset(0, Index2).Value = 1)) Then
+                    SocPairScoresArray(RowIndex, Counter) = 1
+                End If
+            Next
+        Next
+        
+        ActiveCell.Offset(2, 0).Select
+    Next
+    
+    
+    ActiveWorkbook.Sheets("soc pair scores").Select
+    Range("B10").Select
+    Set SocPairScoresRange = Range(ActiveCell, ActiveCell.Offset(RowCount, ColCount - 1))
+    SocPairScoresRange.Value = SocPairScoresArray
+    
+    ActiveWorkbook.Sheets("soc pair scores").Select
+    Range(Range("L11"), Range("L11").Offset(RowCount - 1, 1)).NumberFormat = "mm:ss"
+    
+End Sub
